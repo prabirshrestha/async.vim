@@ -15,19 +15,19 @@ function! s:warp_vim_startjob(argv, opts)
 
     function! obj._out_cb(job_id, data)
         if has_key(self._opts, 'on_stdout')
-            call self._opts.on_stdout(a:job_id, a:data, 'stdout')
+            call self._opts.on_stdout(a:job_id, [a:data], 'stdout')
         endif
     endfunction
 
     function! obj._err_cb(job_id, data)
         if has_key(self._opts, 'on_stderr')
-            call self._opts.on_stderr(a:job_id, a:data, 'stderr')
+            call self._opts.on_stderr(a:job_id, [a:data], 'stderr')
         endif
     endfunction
 
     function! obj._exit_cb(job_id, data)
         if has_key(self._opts, 'on_exit')
-            call self._opts.on_exit(a:job_id, a:data, 'exit')
+            call self._opts.on_exit(a:job_id, [a:data], 'exit')
         endif
     endfunction
 

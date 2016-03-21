@@ -5,7 +5,7 @@ let s:nvim_jobcontrol = has('nvim')
 let s:vim_jobcontrol = !has('nvim') && has('job') && has('patch-7-4-1590')
 
 function! WarnNotSupported()
-    echo 'async job not supported'
+    echo 'not supported for sync jobs'
 endfunction
 
 function! s:warp_vim_startjob(argv, opts)
@@ -44,6 +44,8 @@ function! s:warp_vim_startjob(argv, opts)
     return obj
 endfunction
 
+let s:job_id_counter = 0
+
 function async#job#start(argv, opts) abort
     if s:nvim_jobcontrol
         return jobstart(a:argv, a:opts)
@@ -51,7 +53,15 @@ function async#job#start(argv, opts) abort
         let l:wrapped = s:warp_vim_startjob(a:argv, a:opts)
         return job_start(l:wrapped.argv, l:wrapped.opts)
     else
-        call WarnNotSupported()
+        let s:job_id_counter = s:job_id_counter + 1
+        let l:stdout = system(join(a:argv, ' '))
+        let l:job_id = 'system_' . s:job_id_counter
+        if has_key(a:opts, 'on_stdout')
+            call a:opts.on_stdout(l:job_id, split(l:stdout, '\r\?\n', 1), 'stdout')
+        endif
+        if has_key(a:opts, 'on_exit')
+            call a:opts.on_exit(l:job_id, [v:shell_error], 'exit')
+        endif
     endif
 endfunction
 
@@ -60,7 +70,7 @@ function async#job#stop(job_id) abort
         call jobstop(a:job_id)
     elseif s:vim_jobcontrol
         call job_stop(a:job_id)
-    else
+    elseif type(job_id) == type('') && job_id =~ 'system_'
         call WarnNotSupported()
     endif
 endfunction
@@ -68,6 +78,8 @@ endfunction
 function async#job#send(job_id, data) abort
     if s:nvim_jobcontrol
         call jobsend(a:job_id, a:data)
+    elseif s:vim_jobcontrol
+        call job_stop(job_id)
     else
         call WarnNotSupported()
     endif

@@ -23,3 +23,13 @@ let job = async#job#start(argv, {
 
 " call async#job#stop(job)
 ```
+
+## Gotchas
+
+* Fallback to sync `system()` calls in vim that doesn't support `job`
+* `job_stop` and `job_send` is treated as noop when using `system()`
+* `on_stderr` doesn't work when using `system()`
+
+## Todos
+* Fallback to python/ruby threads and vimproc instead of using `system()` for better compatibility (PRs welcome!!!)
+

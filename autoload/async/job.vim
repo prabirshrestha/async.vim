@@ -79,7 +79,7 @@ function async#job#send(job_id, data) abort
     if s:nvim_jobcontrol
         call jobsend(a:job_id, a:data)
     elseif s:vim_jobcontrol
-        call job_stop(job_id)
+        call job_send(job_id)
     else
         call WarnNotSupported()
     endif

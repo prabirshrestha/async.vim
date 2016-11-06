@@ -15,21 +15,24 @@ else
     let argv = ['bash', '-c', 'ls']
 endif
 
-let job = async#job#start(argv, {
+let jobid = async#job#start(argv, {
     \ 'on_stdout': function('s:handler'),
     \ 'on_stderr': function('s:handler'),
     \ 'on_exit': function('s:handler'),
 \ })
 
+if jobid > 0
+    echom 'job started'
+else
+    echom 'job failed to start'
+endif
+
 " call async#job#stop(job)
 ```
 
-## Gotchas
-
+## Todos
 * Fallback to sync `system()` calls in vim that doesn't support `job`
 * `job_stop` and `job_send` is treated as noop when using `system()`
 * `on_stderr` doesn't work when using `system()`
-
-## Todos
 * Fallback to python/ruby threads and vimproc instead of using `system()` for better compatibility (PRs welcome!!!)
 

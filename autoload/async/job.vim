@@ -28,13 +28,13 @@ endfunction
 
 function! s:out_cb(job, data, jobid, opts)
     if has_key(a:opts, 'on_stdout')
-        call a:opts.on_stdout(a:jobid, [a:data], 'stdout')
+        call a:opts.on_stdout(a:jobid, split(a:data, "\n"), 'stdout')
     endif
 endfunction
 
 function! s:err_cb(job, data, jobid, opts)
     if has_key(a:opts, 'on_stderr')
-        call a:opts.on_stderr(a:jobid, [a:data], 'stderr')
+        call a:opts.on_stderr(a:jobid, split(a:data, "\n"), 'stderr')
     endif
 endfunction
 

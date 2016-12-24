@@ -11,7 +11,7 @@ let s:job_type_nvimjob = 'nvimjob'
 let s:job_type_vimjob = 'vimjob'
 let s:job_error_unsupported_job_type = -2 " unsupported job type
 
-function! s:job_supported_types()
+function! s:job_supported_types() abort
     let l:supported_types = []
     if has('nvim')
         let l:supported_types += [s:job_type_nvimjob]
@@ -22,23 +22,23 @@ function! s:job_supported_types()
     return l:supported_types
 endfunction
 
-function! s:job_supports_type(type)
+function! s:job_supports_type(type) abort
     return index(s:job_supported_types(), a:type) >= 0
 endfunction
 
-function! s:out_cb(job, data, jobid, opts)
+function! s:out_cb(job, data, jobid, opts) abort
     if has_key(a:opts, 'on_stdout')
         call a:opts.on_stdout(a:jobid, split(a:data, "\n"), 'stdout')
     endif
 endfunction
 
-function! s:err_cb(job, data, jobid, opts)
+function! s:err_cb(job, data, jobid, opts) abort
     if has_key(a:opts, 'on_stderr')
         call a:opts.on_stderr(a:jobid, split(a:data, "\n"), 'stderr')
     endif
 endfunction
 
-function! s:exit_cb(job, status, jobid, opts)
+function! s:exit_cb(job, status, jobid, opts) abort
     if has_key(a:opts, 'on_exit')
         call a:opts.on_exit(a:jobid, a:status, 'exit')
     endif
@@ -47,7 +47,7 @@ function! s:exit_cb(job, status, jobid, opts)
     endif
 endfunction
 
-function! s:on_stdout(jobid, data, event)
+function! s:on_stdout(jobid, data, event) abort
     if has_key(s:jobs, a:jobid)
         let l:jobinfo = s:jobs[a:jobid]
         if has_key(l:jobinfo.opts, 'on_stdout')
@@ -56,7 +56,7 @@ function! s:on_stdout(jobid, data, event)
     endif
 endfunction
 
-function! s:on_stderr(jobid, data, event)
+function! s:on_stderr(jobid, data, event) abort
     if has_key(s:jobs, a:jobid)
         let l:jobinfo = s:jobs[a:jobid]
         if has_key(l:jobinfo.opts, 'on_stderr')
@@ -65,7 +65,7 @@ function! s:on_stderr(jobid, data, event)
     endif
 endfunction
 
-function! s:on_exit(jobid, status, event)
+function! s:on_exit(jobid, status, event) abort
     if has_key(s:jobs, a:jobid)
         let l:jobinfo = s:jobs[a:jobid]
         if has_key(l:jobinfo.opts, 'on_exit')
@@ -74,7 +74,7 @@ function! s:on_exit(jobid, status, event)
     endif
 endfunction
 
-function! s:job_start(cmd, opts)
+function! s:job_start(cmd, opts) abort
     let l:jobtypes = s:job_supported_types()
     let l:jobtype = ''
 
@@ -137,7 +137,7 @@ function! s:job_start(cmd, opts)
     return l:jobid
 endfunction
 
-function! s:job_stop(jobid)
+function! s:job_stop(jobid) abort
     if has_key(s:jobs, a:jobid)
         let l:jobinfo = s:jobs[a:jobid]
         if l:jobinfo.type == s:job_type_nvimjob
@@ -151,7 +151,7 @@ function! s:job_stop(jobid)
     endif
 endfunction
 
-function! s:job_send(jobid, data)
+function! s:job_send(jobid, data) abort
     let l:jobinfo = s:jobs[a:jobid]
     if l:jobinfo.type == s:job_type_nvimjob
         call jobsend(a:jobid, a:data)

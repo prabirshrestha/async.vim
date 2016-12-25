@@ -102,13 +102,15 @@ function! s:job_start(cmd, opts) abort
         return s:job_error_unsupported_job_type
     endif
 
-
     if l:jobtype == s:job_type_nvimjob
         let l:job = jobstart(a:cmd, {
             \ 'on_stdout': function('s:on_stdout'),
             \ 'on_stderr': function('s:on_stderr'),
             \ 'on_exit': function('s:on_exit'),
         \})
+        if l:job <= 0
+            return l:job
+        endif
         let l:jobid = l:job " nvimjobid and internal jobid is same
         let s:jobs[l:jobid] = {
             \ 'type': s:job_type_nvimjob,
@@ -124,6 +126,9 @@ function! s:job_start(cmd, opts) abort
             \ 'exit_cb': {job,data->s:exit_cb(job, data, l:jobid, a:opts)},
             \ 'mode': 'raw',
         \})
+        if job_status(l:job) != 'run'
+            return -1
+        endif
         let s:jobs[l:jobid] = {
             \ 'type': s:job_type_vimjob,
             \ 'opts': a:opts,

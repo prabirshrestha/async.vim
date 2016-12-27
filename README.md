@@ -6,7 +6,7 @@ normalize async job control api for vim and neovim
 ```vim
 function! s:handler(job_id, data, event_type)
     echo a:job_id . ' ' . a:event_type
-    echo a:data
+    echo join(a:data, "\n")
 endfunction
 
 if has('win32') || has('win64')

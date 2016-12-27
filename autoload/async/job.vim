@@ -91,9 +91,9 @@ function! s:job_start(cmd, opts) abort
 
     if empty(l:jobtype)
         " find the best jobtype
-        for jobtype in l:jobtypes
-            if s:job_supports_type(jobtype)
-                let l:jobtype = jobtype
+        for l:jobtype2 in l:jobtypes
+            if s:job_supports_type(l:jobtype2)
+                let l:jobtype = l:jobtype2
             endif
         endfor
     endif

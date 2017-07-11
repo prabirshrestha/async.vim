@@ -98,7 +98,7 @@ function! s:job_start(cmd, opts) abort
         endfor
     endif
 
-    if l:jobtype == ''
+    if l:jobtype ==? ''
         return s:job_error_unsupported_job_type
     endif
 
@@ -126,7 +126,7 @@ function! s:job_start(cmd, opts) abort
             \ 'exit_cb': function('s:exit_cb', [l:jobid, a:opts]),
             \ 'mode': 'raw',
         \})
-        if job_status(l:job) != 'run'
+        if job_status(l:job) !=? 'run'
             return -1
         endif
         let s:jobs[l:jobid] = {

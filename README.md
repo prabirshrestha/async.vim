@@ -27,7 +27,11 @@ else
     echom 'job failed to start'
 endif
 
-" call async#job#stop(job)
+" If you want to wait the job:
+call async#job#wait([job], 5000)  " timeout: 5 sec
+
+" If you want to stop the job:
+call async#job#stop(job)
 ```
 
 ## Todos

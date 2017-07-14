@@ -34,6 +34,16 @@ call async#job#wait([job], 5000)  " timeout: 5 sec
 call async#job#stop(job)
 ```
 
+## APIs
+
+APIs are based on neovim's job control APIs.
+
+* [job-control](https://neovim.io/doc/user/job_control.html#job-control)
+* [jobsend()](https://neovim.io/doc/user/eval.html#jobsend%28%29)
+* [jobstart()](https://neovim.io/doc/user/eval.html#jobstart%28%29)
+* [jobstop()](https://neovim.io/doc/user/eval.html#jobstop%28%29)
+* [jobwait()](https://neovim.io/doc/user/eval.html#jobwait%28%29)
+
 ## Todos
 * Fallback to sync `system()` calls in vim that doesn't support `job`
 * `job_stop` and `job_send` is treated as noop when using `system()`

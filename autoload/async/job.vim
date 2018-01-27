@@ -155,7 +155,8 @@ function! s:job_start(cmd, opts) abort
             \ 'type': s:job_type_vimjob,
             \ 'opts': a:opts,
             \ 'job': l:job,
-            \ 'channel': job_getchannel(l:job)
+            \ 'channel': job_getchannel(l:job),
+            \ 'buffer': ''
         \ }
     else
         return s:job_error_unsupported_job_type
@@ -183,7 +184,23 @@ function! s:job_send(jobid, data) abort
     if l:jobinfo.type == s:job_type_nvimjob
         call jobsend(a:jobid, a:data)
     elseif l:jobinfo.type == s:job_type_vimjob
-        call ch_sendraw(l:jobinfo.channel, a:data)
+        let l:jobinfo.buffer .= a:data
+        call s:flush_vim_sendraw(a:jobid, v:null)
+    endif
+endfunction
+
+function! s:flush_vim_sendraw(jobid, timer) abort
+    " https://github.com/vim/vim/issues/2548
+    " https://github.com/natebosch/vim-lsc/issues/67#issuecomment-357469091
+    let l:jobinfo = s:jobs[a:jobid]
+    if len(l:jobinfo.buffer) <= 1024
+        call ch_sendraw(l:jobinfo.channel, l:jobinfo.buffer)
+        let l:jobinfo.buffer = ''
+    else
+        let l:to_send = l:jobinfo.buffer[:1023]
+        let l:jobinfo.buffer = l:jobinfo.buffer[1024:]
+        call ch_sendraw(l:jobinfo.channel, l:to_send)
+        call timer_start(0, function('s:flush_vim_sendraw', [a:jobid]))
     endif
 endfunction
 

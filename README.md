@@ -70,6 +70,12 @@ endfunction
 " }}}
 ```
 
+## Known Issues
+
+* Vim 8 hangs when sending large strings
+This only happens for Vim 8 and not NeoVim. Please update your vim to 8.1.350.
+Refer to https://github.com/vim/vim/issues/2548 for more details.
+
 ## Todos
 * Fallback to sync `system()` calls in vim that doesn't support `job`
 * `job_stop` and `job_send` is treated as noop when using `system()`

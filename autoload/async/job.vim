@@ -199,13 +199,13 @@ function! s:flush_vim_sendraw(jobid, timer) abort
             call timer_start(1, function('s:flush_vim_sendraw', [a:jobid]))
             return
         endif
-        if len(l:jobinfo.buffer) <= 1024
+        if len(l:jobinfo.buffer) <= 4096
             call ch_sendraw(l:jobinfo.channel, l:jobinfo.buffer)
             let l:jobinfo.buffer = ''
             break
         endif
-        let l:to_send = l:jobinfo.buffer[:1023]
-        let l:jobinfo.buffer = l:jobinfo.buffer[1024:]
+        let l:to_send = l:jobinfo.buffer[:4095]
+        let l:jobinfo.buffer = l:jobinfo.buffer[4096:]
         call ch_sendraw(l:jobinfo.channel, l:to_send)
     endwhile
 endfunction

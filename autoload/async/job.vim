@@ -195,6 +195,10 @@ function! s:flush_vim_sendraw(jobid, timer) abort
     let l:jobinfo = s:jobs[a:jobid]
     while 1
         sleep 1m
+        if ch_canread(l:jobinfo.channel)
+            call timer_start(1, function('s:flush_vim_sendraw', [a:jobid]))
+            return
+        endif
         if len(l:jobinfo.buffer) <= 1024
             call ch_sendraw(l:jobinfo.channel, l:jobinfo.buffer)
             let l:jobinfo.buffer = ''

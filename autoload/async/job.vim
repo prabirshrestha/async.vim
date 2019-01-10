@@ -193,21 +193,16 @@ function! s:flush_vim_sendraw(jobid, timer) abort
     " https://github.com/vim/vim/issues/2548
     " https://github.com/natebosch/vim-lsc/issues/67#issuecomment-357469091
     let l:jobinfo = s:jobs[a:jobid]
-    while 1
-        sleep 1m
-        if ch_canread(l:jobinfo.channel)
-            call timer_start(1, function('s:flush_vim_sendraw', [a:jobid]))
-            return
-        endif
-        if len(l:jobinfo.buffer) <= 4096
-            call ch_sendraw(l:jobinfo.channel, l:jobinfo.buffer)
-            let l:jobinfo.buffer = ''
-            break
-        endif
+    sleep 1m
+    if len(l:jobinfo.buffer) <= 4096
+        call ch_sendraw(l:jobinfo.channel, l:jobinfo.buffer)
+        let l:jobinfo.buffer = ''
+    else
         let l:to_send = l:jobinfo.buffer[:4095]
         let l:jobinfo.buffer = l:jobinfo.buffer[4096:]
         call ch_sendraw(l:jobinfo.channel, l:to_send)
-    endwhile
+        call timer_start(1, function('s:flush_vim_sendraw', [a:jobid]))
+    endif
 endfunction
 
 function! s:job_wait_single(jobid, timeout, start) abort

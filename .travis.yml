@@ -2,8 +2,13 @@ language: viml
 sudo: required
 dist: trusty
 
+install:
+    - export VIM_VERSION=master
+    - bash test/install-vim.sh
+    - export PATH=$HOME/vim/bin:$PATH
+
 before_script:
-  - git clone --depth 1 --branch v1.5.4 --single-branch https://github.com/thinca/vim-themis /tmp/vim-themis
+    - git clone --depth 1 --branch v1.5.4 --single-branch https://github.com/thinca/vim-themis /tmp/vim-themis
 
 script:
     - pip install --user --upgrade vim-vint pathlib enum34 typing

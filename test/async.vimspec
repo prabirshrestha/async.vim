@@ -44,7 +44,8 @@ Describe async
       let job = async#job#start('cat', {'on_stdout': function('s:on_stdout')})
       call async#job#send(job, "i-love-vim\n")
       call async#job#wait([job])
-      Assert Equals(join(s:output, ''), 'i-love-vim')
+      let out = join(s:output, '')
+      Assert Equals(out, 'i-love-vim')
     End
   End
 End

@@ -1,6 +1,5 @@
-let s:output = []
-function! s:on_stdout(id, data, event) abort
-  call add(s:output, join(a:data, ''))
+function! s:on_stdout(ctx, id, data, event) abort
+  call add(a:ctx.output, join(a:data, ''))
   call async#job#stop(a:id)
 endfunction
 
@@ -40,11 +39,11 @@ Describe async
 
   Describe async#job#send
     It can send input text to the job
-      let s:output = []
-      let job = async#job#start('cat', {'on_stdout': function('s:on_stdout')})
+      let ctx = { 'output': [] }
+      let job = async#job#start('cat', {'on_stdout': function('s:on_stdout', [ctx])})
       call async#job#send(job, "i-love-vim\n")
       call async#job#wait([job])
-      let out = join(s:output, '')
+      let out = join(ctx.output, '')
       Assert Equals(out, 'i-love-vim')
     End
   End

@@ -1,0 +1,50 @@
+function! s:on_stdout(ctx, id, data, event) abort
+  call add(a:ctx.output, join(a:data, ''))
+  call async#job#stop(a:id)
+endfunction
+
+Describe async
+  Describe async#job#start
+    It can start cmmand and return numbered job-id
+      let job = async#job#start('vim --version', {})
+      Assert Equals(type(job), v:t_number)
+    End
+  End
+
+  Describe async#job#stop
+    It can stop the job specified
+      let job = async#job#start('bash -c "sleep 2 && touch i-love-vim"', {})
+      sleep 3
+      call async#job#stop(job)
+      Assert filereadable('i-love-vim')
+      call delete('i-love-vim')
+
+      let job = async#job#start('bash -c "sleep 2 && touch i-love-vim"', {})
+      sleep 1
+      call async#job#stop(job)
+      Assert !filereadable('i-love-vim')
+    End
+  End
+
+  Describe async#job#wait
+    It can wait the job specified
+      let job = async#job#start('bash -c "sleep 2"', {})
+      let start = reltime()
+      call async#job#wait([job])
+      let seconds = reltimefloat(reltime(start))
+      call async#job#stop(job)
+      Assert seconds > 2
+    End
+  End
+
+  Describe async#job#send
+    It can send input text to the job
+      let ctx = { 'output': [] }
+      let job = async#job#start('cat', {'on_stdout': function('s:on_stdout', [ctx])})
+      call async#job#send(job, "i-love-vim\n")
+      call async#job#wait([job])
+      let out = join(ctx.output, '')
+      Assert Equals(out, 'i-love-vim')
+    End
+  End
+End

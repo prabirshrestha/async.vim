@@ -28,10 +28,10 @@ else
 endif
 
 " If you want to wait the job:
-call async#job#wait([job], 5000)  " timeout: 5 sec
+call async#job#wait([jobid], 5000)  " timeout: 5 sec
 
 " If you want to stop the job:
-call async#job#stop(job)
+call async#job#stop(jobid)
 ```
 
 ## APIs

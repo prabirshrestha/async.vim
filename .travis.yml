@@ -14,6 +14,5 @@ script:
     - pip install --user --upgrade vim-vint pathlib enum34 typing
     - python --version
     - vim --version
-    - vint --version
     - vint autoload
     - /tmp/vim-themis/bin/themis --reporter dot 

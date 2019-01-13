@@ -27,6 +27,9 @@ else
     echom 'job failed to start'
 endif
 
+" If you want to get the process id of the job
+let pid = async#job#pid(jobid)
+
 " If you want to wait the job:
 call async#job#wait([jobid], 5000)  " timeout: 5 sec
 

@@ -246,6 +246,23 @@ function! s:job_wait(jobids, timeout) abort
     return l:ret
 endfunction
 
+function! s:job_pid(jobid) abort
+    if !has_key(s:jobs, a:jobid)
+        return 0
+    endif
+
+    let l:jobinfo = s:jobs[a:jobid]
+    if l:jobinfo.type == s:job_type_nvimjob
+        return jobpid(a:jobid)
+    elseif l:jobinfo.type == s:job_type_vimjob
+        let l:vimjobinfo = job_info(a:jobid)
+        if type(l:vimjobinfo) == {} && has_key(l:vimjobinfo, 'process')
+            return l:vimjobinfo['process']
+        endif
+    endif
+    return 0
+endfunction
+
 " public apis {{{
 function! async#job#start(cmd, opts) abort
     return s:job_start(a:cmd, a:opts)
@@ -262,5 +279,9 @@ endfunction
 function! async#job#wait(jobids, ...) abort
     let l:timeout = get(a:000, 0, -1)
     return s:job_wait(a:jobids, l:timeout)
+endfunction
+
+function! async#job#pid(jobid) abort
+    return s:job_pid(a:jobid)
 endfunction
 " }}}

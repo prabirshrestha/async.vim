@@ -184,8 +184,12 @@ function! s:job_send(jobid, data) abort
     if l:jobinfo.type == s:job_type_nvimjob
         call jobsend(a:jobid, a:data)
     elseif l:jobinfo.type == s:job_type_vimjob
-        let l:jobinfo.buffer .= a:data
-        call s:flush_vim_sendraw(a:jobid, v:null)
+        if has('patch-8.1.0818')
+            call ch_sendraw(l:jobinfo.channel, a:data)
+        else
+            let l:jobinfo.buffer .= a:data
+            call s:flush_vim_sendraw(a:jobid, v:null)
+        endif
     endif
 endfunction
 

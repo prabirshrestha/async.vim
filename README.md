@@ -51,7 +51,7 @@ APIs are based on neovim's job control APIs.
 ## Embedding
 
 Async.vim can be either embedded with other plugins or be used as an external plugin.
-If you want to embed all you need is to change these 4 function names async#job# to what ever you want. E.g.:
+If you want to embed all you need is to change these 5 function names async#job# to what ever you want. E.g.:
 
 ```vim
 " public apis {{{
@@ -70,6 +70,10 @@ endfunction
 function! yourplugin#job#wait(jobids, ...) abort
     let l:timeout = get(a:000, 0, -1)
     return s:job_wait(a:jobids, l:timeout)
+endfunction
+
+function! yourplugin#job#pid(jobid) abort
+    return s:job_pid(a:jobid)
 endfunction
 " }}}
 ```

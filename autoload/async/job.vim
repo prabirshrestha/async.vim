@@ -93,6 +93,9 @@ function! s:on_exit(jobid, status, event) abort
         if has_key(l:jobinfo.opts, 'on_exit')
             call l:jobinfo.opts.on_exit(a:jobid, a:status, a:event)
         endif
+        if has_key(s:jobs, a:jobid)
+            call remove(s:jobs, a:jobid)
+        endif
     endif
 endfunction
 
@@ -183,9 +186,6 @@ function! s:job_stop(jobid) abort
             endtry
         elseif l:jobinfo.type == s:job_type_vimjob
             call job_stop(s:jobs[a:jobid].job)
-        endif
-        if has_key(s:jobs, a:jobid)
-            call remove(s:jobs, a:jobid)
         endif
     endif
 endfunction

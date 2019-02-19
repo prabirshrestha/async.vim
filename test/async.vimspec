@@ -4,6 +4,11 @@ function! s:on_stdout(ctx, id, data, event) abort
 endfunction
 
 Describe async
+  Before
+    let scope = themis#helper('scope')
+    let vars = scope.vars('autoload/async/job.vim')
+  End
+
   Describe async#job#start
     It can start cmmand and return numbered job-id
       let job = async#job#start('vim --version', {})
@@ -23,6 +28,27 @@ Describe async
       sleep 1
       call async#job#stop(job)
       Assert !filereadable('i-love-vim')
+    End
+
+    It invokes 'on_exit' callback
+      let ns = { 'called': 0 }
+      let job = async#job#start('bash -c "sleep 2 && touch i-love-vim"', {
+            \ 'on_exit': { -> extend(ns, { 'called': 1 }) },
+            \})
+      call async#job#stop(job)
+      sleep 1m
+      Assert Equals(ns, {'called': 1})
+    End
+
+    It removes a corresponding job from an internal variable
+      let job1 = async#job#start('bash -c "sleep 2 && touch i-love-vim"', {})
+      let job2 = async#job#start('bash -c "sleep 2 && touch i-love-vim"', {})
+      Assert Equals(sort(keys(vars.jobs)), sort([string(job1), string(job2)]))
+      call async#job#stop(job1)
+      sleep 1m
+      Assert Equals(sort(keys(vars.jobs)), sort([string(job2)]))
+      sleep 3
+      Assert Equals(sort(keys(vars.jobs)), [])
     End
   End
 

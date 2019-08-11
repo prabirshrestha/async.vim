@@ -190,16 +190,22 @@ function! s:job_stop(jobid) abort
     endif
 endfunction
 
-function! s:job_send(jobid, data) abort
+function! s:job_send(jobid, data, close_stdin) abort
     let l:jobinfo = s:jobs[a:jobid]
     if l:jobinfo.type == s:job_type_nvimjob
         call jobsend(a:jobid, a:data)
+        if a:close_stdin
+          call chanclose(a:jobid, 'stdin')
+        endif
     elseif l:jobinfo.type == s:job_type_vimjob
         if has('patch-8.1.0818')
             call ch_sendraw(l:jobinfo.channel, a:data)
         else
             let l:jobinfo.buffer .= a:data
             call s:flush_vim_sendraw(a:jobid, v:null)
+        endif
+        if a:close_stdin
+          call ch_close_in(l:jobinfo.channel)
         endif
     endif
 endfunction
@@ -287,8 +293,9 @@ function! async#job#stop(jobid) abort
     call s:job_stop(a:jobid)
 endfunction
 
-function! async#job#send(jobid, data) abort
-    call s:job_send(a:jobid, a:data)
+function! async#job#send(jobid, data, ...) abort
+    let l:close_stdin = get(a:000, 0, 0)
+    call s:job_send(a:jobid, a:data, l:close_stdin)
 endfunction
 
 function! async#job#wait(jobids, ...) abort

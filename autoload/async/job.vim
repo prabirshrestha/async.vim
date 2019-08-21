@@ -205,7 +205,10 @@ function! s:job_send(jobid, data, close_stdin) abort
             call s:flush_vim_sendraw(a:jobid, v:null)
         endif
         if a:close_stdin
-          call ch_close_in(l:jobinfo.channel)
+            while len(l:jobinfo.buffer) != 0
+                sleep 1m
+            endwhile
+            call ch_close_in(l:jobinfo.channel)
         endif
     endif
 endfunction

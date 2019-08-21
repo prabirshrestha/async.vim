@@ -195,7 +195,12 @@ function! s:job_send(jobid, data) abort
     if l:jobinfo.type == s:job_type_nvimjob
         call jobsend(a:jobid, a:data)
     elseif l:jobinfo.type == s:job_type_vimjob
-        if has('patch-8.1.0818')
+        " ch_sendraw (previously fixed on patch-8.1.818) still fails to deal
+        " with chunks of data bigger than 65536 bytes on channels opened in
+        " non-blocking mode, and since we started opening channels with
+        " noblock=1 since patch-8.1.889, we should call ch_sendraw only if
+        " the size of a:data is no bigger than 65536 bytes!
+        if has('patch-8.1.818') && (!has('patch-8.1.889') || len(a:data) <= 65536)
             call ch_sendraw(l:jobinfo.channel, a:data)
         else
             let l:jobinfo.buffer .= a:data

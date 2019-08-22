@@ -205,7 +205,15 @@ function! s:job_send(jobid, data, close_stdin) abort
           call chanclose(a:jobid, 'stdin')
         endif
     elseif l:jobinfo.type == s:job_type_vimjob
-        if has('patch-8.1.0818')
+        " There is no easy way to know when ch_sendraw() finishes writing data
+        " on a non-blocking channels -- has('patch-8.1.889') -- and because of
+        " this, we cannot safely call ch_close_in().  So when we find ourselves
+        " in this situation (i.e. noblock=1 and close stdin after send) we fall
+        " back to using s:flush_vim_sendraw() and wait for transmit buffer to be
+        " empty
+        "
+        " XXX https://groups.google.com/d/topic/vim_dev/UNNulkqb60k/discussion
+        if has('patch-8.1.818') && (!has('patch-8.1.889') || !a:close_stdin)
             call ch_sendraw(l:jobinfo.channel, a:data)
         else
             let l:jobinfo.buffer .= a:data

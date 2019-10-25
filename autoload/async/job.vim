@@ -127,12 +127,19 @@ function! s:job_start(cmd, opts) abort
         return s:job_error_unsupported_job_type
     endif
 
+    " options shared by both vim and neovim
+    let l:jobopt = {}
+    if has_key(a:opts, 'cwd')
+      let l:jobopt.cwd = a:opts.cwd 
+    endif
+
     if l:jobtype == s:job_type_nvimjob
-        let l:job = jobstart(a:cmd, {
+        call extend(l:jobopt, {
             \ 'on_stdout': function('s:on_stdout'),
             \ 'on_stderr': function('s:on_stderr'),
             \ 'on_exit': function('s:on_exit'),
         \})
+        let l:job = jobstart(a:cmd, l:jobopt)
         if l:job <= 0
             return l:job
         endif
@@ -145,12 +152,12 @@ function! s:job_start(cmd, opts) abort
     elseif l:jobtype == s:job_type_vimjob
         let s:jobidseq = s:jobidseq + 1
         let l:jobid = s:jobidseq
-        let l:jobopt = {
+        call extend(l:jobopt, {
             \ 'out_cb': function('s:out_cb', [l:jobid, a:opts]),
             \ 'err_cb': function('s:err_cb', [l:jobid, a:opts]),
             \ 'exit_cb': function('s:exit_cb', [l:jobid, a:opts]),
             \ 'mode': 'raw',
-        \ }
+        \ })
         if has('patch-8.1.889')
           let l:jobopt['noblock'] = 1
         endif

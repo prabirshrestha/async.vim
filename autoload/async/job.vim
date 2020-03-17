@@ -307,3 +307,6 @@ function! async#job#pid(jobid) abort
     return s:job_pid(a:jobid)
 endfunction
 " }}}
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

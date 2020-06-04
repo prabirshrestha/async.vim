@@ -197,11 +197,12 @@ function! s:job_stop(jobid) abort
     endif
 endfunction
 
-function! s:job_send(jobid, data, close_stdin) abort
+function! s:job_send(jobid, data, opts) abort
     let l:jobinfo = s:jobs[a:jobid]
+    let l:close_stdin = get(a:opts, 'close_stdin')
     if l:jobinfo.type == s:job_type_nvimjob
         call jobsend(a:jobid, a:data)
-        if a:close_stdin
+        if l:close_stdin
           call chanclose(a:jobid, 'stdin')
         endif
     elseif l:jobinfo.type == s:job_type_vimjob
@@ -212,14 +213,14 @@ function! s:job_send(jobid, data, close_stdin) abort
         " back to using s:flush_vim_sendraw() and wait for transmit buffer to be
         " empty
         "
-        " XXX https://groups.google.com/d/topic/vim_dev/UNNulkqb60k/discussion
-        if has('patch-8.1.818') && (!has('patch-8.1.889') || !a:close_stdin)
+        " Ref: https://groups.google.com/d/topic/vim_dev/UNNulkqb60k/discussion
+        if has('patch-8.1.818') && (!has('patch-8.1.889') || !l:close_stdin)
             call ch_sendraw(l:jobinfo.channel, a:data)
         else
             let l:jobinfo.buffer .= a:data
             call s:flush_vim_sendraw(a:jobid, v:null)
         endif
-        if a:close_stdin
+        if l:close_stdin
             while len(l:jobinfo.buffer) != 0
                 sleep 1m
             endwhile
@@ -311,9 +312,8 @@ function! async#job#stop(jobid) abort
     call s:job_stop(a:jobid)
 endfunction
 
-function! async#job#send(jobid, data, ...) abort
-    let l:close_stdin = get(a:000, 0, 0)
-    call s:job_send(a:jobid, a:data, l:close_stdin)
+function! async#job#send(jobid, data, opts) abort
+    call s:job_send(a:jobid, a:data, a:opts)
 endfunction
 
 function! async#job#wait(jobids, ...) abort

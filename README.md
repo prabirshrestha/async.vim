@@ -63,8 +63,8 @@ function! yourplugin#job#stop(jobid) abort
     call s:job_stop(a:jobid)
 endfunction
 
-function! yourplugin#job#send(jobid, data, opts) abort
-    call s:job_send(a:jobid, a:data, a:opts)
+function! yourplugin#job#send(jobid, data) abort
+    call s:job_send(a:jobid, a:data)
 endfunction
 
 function! yourplugin#job#wait(jobids, ...) abort

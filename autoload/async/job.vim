@@ -305,8 +305,9 @@ function! async#job#stop(jobid) abort
     call s:job_stop(a:jobid)
 endfunction
 
-function! async#job#send(jobid, data, opts) abort
-    call s:job_send(a:jobid, a:data, a:opts)
+function! async#job#send(jobid, data, ...) abort
+    let l:opts = get(a:000, 0, {})
+    call s:job_send(a:jobid, a:data, l:opts)
 endfunction
 
 function! async#job#wait(jobids, ...) abort

@@ -199,7 +199,7 @@ endfunction
 
 function! s:job_send(jobid, data, opts) abort
     let l:jobinfo = s:jobs[a:jobid]
-    let l:close_stdin = get(a:opts, 'close_stdin')
+    let l:close_stdin = get(a:opts, 'close_stdin', 0)
     if l:jobinfo.type == s:job_type_nvimjob
         call jobsend(a:jobid, a:data)
         if l:close_stdin

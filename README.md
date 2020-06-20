@@ -51,31 +51,10 @@ APIs are based on neovim's job control APIs.
 ## Embedding
 
 Async.vim can be either embedded with other plugins or be used as an external plugin.
-If you want to embed all you need is to change these 5 function names async#job# to what ever you want. E.g.:
+If you want to embed run the following vim command.
 
 ```vim
-" public apis {{{
-function! yourplugin#job#start(cmd, opts) abort
-    return s:job_start(a:cmd, a:opts)
-endfunction
-
-function! yourplugin#job#stop(jobid) abort
-    call s:job_stop(a:jobid)
-endfunction
-
-function! yourplugin#job#send(jobid, data) abort
-    call s:job_send(a:jobid, a:data)
-endfunction
-
-function! yourplugin#job#wait(jobids, ...) abort
-    let l:timeout = get(a:000, 0, -1)
-    return s:job_wait(a:jobids, l:timeout)
-endfunction
-
-function! yourplugin#job#pid(jobid) abort
-    return s:job_pid(a:jobid)
-endfunction
-" }}}
+:AsyncEmbed path=./autoload/myplugin/job.vim namespace=myplugin#job
 ```
 
 ## Todos
@@ -83,4 +62,3 @@ endfunction
 * `job_stop` and `job_send` is treated as noop when using `system()`
 * `on_stderr` doesn't work when using `system()`
 * Fallback to python/ruby threads and vimproc instead of using `system()` for better compatibility (PRs welcome!!!)
-

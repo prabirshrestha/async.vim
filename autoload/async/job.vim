@@ -303,6 +303,21 @@ function! s:job_pid(jobid) abort
     return 0
 endfunction
 
+function! s:callback_cb(jobid, opts, ch, data) abort
+    if has_key(a:opts, 'on_stdout')
+        call a:opts.on_stdout(a:jobid, split(a:data, "\n", 1), 'stdout')
+    endif
+endfunction
+
+function! s:close_cb(jobid, opts, ch) abort
+    if has_key(a:opts, 'on_exit')
+        call a:opts.on_exit(a:jobid, 'closed', 'exit')
+    endif
+    if has_key(s:jobs, a:jobid)
+        call remove(s:jobs, a:jobid)
+    endif
+endfunction
+
 " public apis {{{
 function! async#job#start(cmd, opts) abort
     return s:job_start(a:cmd, a:opts)
@@ -324,6 +339,25 @@ endfunction
 
 function! async#job#pid(jobid) abort
     return s:job_pid(a:jobid)
+endfunction
+
+function! async#job#connect(addr, opts) abort
+    let s:jobidseq = s:jobidseq + 1
+    let l:jobid = s:jobidseq
+    let l:ch = ch_open(a:addr, {})
+    call ch_setoptions(l:ch, {
+        \ 'callback': function('s:callback_cb', [l:jobid, a:opts]),
+        \ 'close_cb': function('s:close_cb', [l:jobid, a:opts]),
+        \ 'mode': 'raw',
+    \})
+    let s:jobs[l:jobid] = {
+        \ 'type': s:job_type_vimjob,
+        \ 'opts': a:opts,
+        \ 'job': l:ch,
+        \ 'channel': l:ch,
+        \ 'buffer': ''
+    \}
+    return l:jobid
 endfunction
 " }}}
 

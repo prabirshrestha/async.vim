@@ -76,6 +76,9 @@ Describe async
 
   Describe async#job#connect
     It can connect tcp-server and return numbered job-id
+      if has('nvim')
+        Skip nvim is not supported
+      endif
       let ctx = { 'output': [] }
       let job = async#job#connect('github.com:80', {'on_stdout': function('s:on_stdout', [ctx])})
       Assert Equals(type(job), v:t_number)

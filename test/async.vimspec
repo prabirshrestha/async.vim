@@ -80,13 +80,13 @@ Describe async
         Skip nvim is not supported
       endif
       let ctx = { 'output': [] }
-      let job = async#job#connect('github.com:80', {'on_stdout': function('s:on_stdout', [ctx])})
+      let job = async#job#connect('google.com:80', {'on_stdout': function('s:on_stdout', [ctx])})
       Assert Equals(type(job), v:t_number)
       call async#job#send(job, "GET / HTTP/1.0\r\n\r\n")
       sleep 4
       let out = join(ctx.output, '')
       let firstline = trim(split(out, '[\r\n]')[0])
-      Assert Equals(firstline, 'HTTP/1.1 301 Moved Permanently')
+      Assert Equals(firstline, 'HTTP/1.0 200 OK')
     End
   End
 

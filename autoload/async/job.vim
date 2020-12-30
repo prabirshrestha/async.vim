@@ -359,7 +359,8 @@ function! async#job#connect(addr, opts) abort
         if ch_status(l:ch) ==# 'open'
             break
         endif
-        sleep 1m
+        sleep 100m
+        let l:retry += 1
     endwhile
     let s:jobs[l:jobid] = {
         \ 'type': s:job_type_vimjob,

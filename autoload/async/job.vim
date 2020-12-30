@@ -350,7 +350,7 @@ function! async#job#connect(addr, opts) abort
     let l:jobid = s:jobidseq
     let l:retry = 0
     while l:retry < 5
-        let l:ch = ch_open(a:addr, {})
+        let l:ch = ch_open(a:addr, {'waittime': 1000})
         call ch_setoptions(l:ch, {
             \ 'callback': function('s:callback_cb', [l:jobid, a:opts]),
             \ 'close_cb': function('s:close_cb', [l:jobid, a:opts]),
@@ -359,7 +359,8 @@ function! async#job#connect(addr, opts) abort
         if ch_status(l:ch) ==# 'open'
             break
         endif
-        sleep 1m
+        sleep 100m
+        let l:retry += 1
     endwhile
     let s:jobs[l:jobid] = {
         \ 'type': s:job_type_vimjob,

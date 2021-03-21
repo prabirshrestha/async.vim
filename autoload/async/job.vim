@@ -33,6 +33,9 @@ let s:job_type_nvimjob = 'nvimjob'
 let s:job_type_vimjob = 'vimjob'
 let s:job_error_unsupported_job_type = -2 " unsupported job type
 
+function! s:noop(...) abort
+endfunction
+
 function! s:job_supported_types() abort
     let l:supported_types = []
     if has('nvim')
@@ -49,15 +52,11 @@ function! s:job_supports_type(type) abort
 endfunction
 
 function! s:out_cb(jobid, opts, job, data) abort
-    if has_key(a:opts, 'on_stdout')
-        call a:opts.on_stdout(a:jobid, split(a:data, "\n", 1), 'stdout')
-    endif
+    call a:opts.on_stdout(a:jobid, split(a:data, "\n", 1), 'stdout')
 endfunction
 
 function! s:err_cb(jobid, opts, job, data) abort
-    if has_key(a:opts, 'on_stderr')
-        call a:opts.on_stderr(a:jobid, split(a:data, "\n", 1), 'stderr')
-    endif
+    call a:opts.on_stderr(a:jobid, split(a:data, "\n", 1), 'stderr')
 endfunction
 
 function! s:exit_cb(jobid, opts, job, status) abort
@@ -70,21 +69,13 @@ function! s:exit_cb(jobid, opts, job, status) abort
 endfunction
 
 function! s:on_stdout(jobid, data, event) abort
-    if has_key(s:jobs, a:jobid)
-        let l:jobinfo = s:jobs[a:jobid]
-        if has_key(l:jobinfo.opts, 'on_stdout')
-            call l:jobinfo.opts.on_stdout(a:jobid, a:data, a:event)
-        endif
-    endif
+    let l:jobinfo = s:jobs[a:jobid]
+    call l:jobinfo.opts.on_stdout(a:jobid, a:data, a:event)
 endfunction
 
 function! s:on_stderr(jobid, data, event) abort
-    if has_key(s:jobs, a:jobid)
-        let l:jobinfo = s:jobs[a:jobid]
-        if has_key(l:jobinfo.opts, 'on_stderr')
-            call l:jobinfo.opts.on_stderr(a:jobid, a:data, a:event)
-        endif
-    endif
+    let l:jobinfo = s:jobs[a:jobid]
+    call l:jobinfo.opts.on_stderr(a:jobid, a:data, a:event)
 endfunction
 
 function! s:on_exit(jobid, status, event) abort
@@ -135,8 +126,8 @@ function! s:job_start(cmd, opts) abort
 
     if l:jobtype == s:job_type_nvimjob
         call extend(l:jobopt, {
-            \ 'on_stdout': function('s:on_stdout'),
-            \ 'on_stderr': function('s:on_stderr'),
+            \ 'on_stdout': has_key(a:opts, 'on_stdout') ? function('s:on_stdout') : function('s:noop'),
+            \ 'on_stderr': has_key(a:opts, 'on_stderr') ? function('s:on_stderr') : function('s:noop'),
             \ 'on_exit': function('s:on_exit'),
         \})
         let l:job = jobstart(a:cmd, l:jobopt)
@@ -153,8 +144,8 @@ function! s:job_start(cmd, opts) abort
         let s:jobidseq = s:jobidseq + 1
         let l:jobid = s:jobidseq
         call extend(l:jobopt, {
-            \ 'out_cb': function('s:out_cb', [l:jobid, a:opts]),
-            \ 'err_cb': function('s:err_cb', [l:jobid, a:opts]),
+            \ 'out_cb': has_key(a:opts, 'on_stdout') ? function('s:out_cb', [l:jobid, a:opts]) : function('s:noop'),
+            \ 'err_cb': has_key(a:opts, 'on_stderr') ? function('s:err_cb', [l:jobid, a:opts]) : function('s:noop'),
             \ 'exit_cb': function('s:exit_cb', [l:jobid, a:opts]),
             \ 'mode': 'raw',
         \ })

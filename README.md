@@ -19,6 +19,7 @@ let jobid = async#job#start(argv, {
     \ 'on_stdout': function('s:handler'),
     \ 'on_stderr': function('s:handler'),
     \ 'on_exit': function('s:handler'),
+    \ 'normalize': 'array'
 \ })
 
 if jobid > 0
@@ -47,6 +48,18 @@ APIs are based on neovim's job control APIs.
 * [jobstop()](https://neovim.io/doc/user/eval.html#jobstop%28%29)
 * [jobwait()](https://neovim.io/doc/user/eval.html#jobwait%28%29)
 * [jobpid()](https://neovim.io/doc/user/eval.html#jobpid%28%29)
+
+### Normalizing data
+
+By default `stdout` and `stderr` data is an array. This is a noop for neovim
+but requiring using `split` in vim. This can tend to be costly if you are want
+a string since you are joining the splited string. To avoid this unncessary
+conversion you can normalize it to `string` so it is a noop in vim but a `join`
+for neovim. If you prefer to disable normalization pass normalization as `raw`.
+
+```
+normalize: 'array' " Valid values are 'array', 'string' or 'raw'
+```
 
 ## Embedding
 

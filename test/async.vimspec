@@ -10,9 +10,17 @@ Describe async
   End
 
   Describe async#job#start
-    It can start cmmand and return numbered job-id
+    It can start command and return numbered job-id
       let job = async#job#start('vim --version', {})
       Assert Equals(type(job), v:t_number)
+    End
+
+    It can start command with environment variables
+      let ctx = { 'output': [] }
+      let job = async#job#start('echo $FOO', {'on_stdout': function('s:on_stdout', [ctx]), 'env': {'FOO': 'BAR'}})
+      call async#job#wait([job])
+      let out = join(ctx.output, '')
+      Assert Equals(out, 'BAR')
     End
   End
 
